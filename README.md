@@ -31,3 +31,6 @@ Before you run, make sure you have XQuartz active and running. I explicitly set 
 ```bash
 export DISPLAY=":0"
 ```
+
+## Getting RViz to Work
+https://gist.github.com/vfdev-5/b7685371071036cb739f23b3794b5b83
