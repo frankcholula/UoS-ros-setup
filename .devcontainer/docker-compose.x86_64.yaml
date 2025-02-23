@@ -26,8 +26,7 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
     # Uncomment the following lines if you have an NVIDIA GPU and want to use it in the container
-    # devices:
-    #   - /dev/nvidia0:/dev/nvidia0
+    devices:
+      - /dev/dxg:/dev/nvidia0
     restart: always
-    command: [ "/bin/bash", "-c", "echo 'source /opt/ros/melodic/setup.bash' >> ~/.bashrc && source ~/.bashrc && tail -f /dev/null" ]
-
+    command: [ "/bin/bash", "-c", "echo 'source /opt/ros/melodic/setup.bash' >> ~/.bashrc && echo 'source /root/catkin_ws/devel/setup.sh' >> ~/.bashrc && source ~/.bashrc && tail -f /dev/null" ]
