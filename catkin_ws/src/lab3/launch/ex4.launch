@@ -8,7 +8,7 @@
     <node pkg="rosbag" type="play" name="player" args="--clock /root/catkin_ws/solutions/lab3/lab3_data.bag"/>
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
 
-    <node pkg="robot_localization" name="KF" type="ekf_localization_node">
+    <node pkg="robot_localization" name="KF" type="ekf_localization_node" clear_params="true">
         <param name="odom0" value="/odom_corrected"/>
         <!-- vx, vy, vz, vroll, vpitch, vyaw -->
         <rosparam param="odom0_config">[false, false, false,
@@ -17,6 +17,8 @@
                                         true, true, true,
                                         false, false, false]
         </rosparam>
+        <param name="odom0_differential" value="true"/>
+
         <param name="odom1" value="/odometry/gps"/>
         <!-- x, y -->
         <rosparam param="odom1_config">[true, true, false,
@@ -35,6 +37,39 @@
                                        true, true, true,
                                        true, true, true]
         </rosparam>
+        <param name="imu0_differential" value="false"/>
+        <param name="two_d_mode" value="true"/>
+        <param name="dynamic_process_noise_covariance" value="true"/>
+        <rosparam param="process_noise_covariance">
+            [0.2,  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- x (GPS moderate trust) -->
+             0,    0.2,  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- y (GPS moderate trust) -->
+             0,    0,    0.01, 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- z (constrained in 2D) -->
+             0,    0,    0,    0.01, 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- roll (constrained in 2D) -->
+             0,    0,    0,    0,    0.01, 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- pitch (constrained in 2D) -->
+             0,    0,    0,    0,    0,    0.5,  0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- yaw (IMU reliable) -->
+             0,    0,    0,    0,    0,    0,    0.4,  0,    0,    0,    0,    0,    0,    0,    0,    <!-- vx (odom reliable) -->
+             0,    0,    0,    0,    0,    0,    0,    0.4,  0,    0,    0,    0,    0,    0,    0,    <!-- vy (odom reliable) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0.01, 0,    0,    0,    0,    0,    0,    <!-- vz (constrained in 2D) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0.01, 0,    0,    0,    0,    0,    <!-- vroll (constrained in 2D) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.01, 0,    0,    0,    0,    <!-- vpitch (constrained in 2D) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.6,  0,    0,    0,    <!-- vyaw (IMU gyro very reliable) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.5,  0,    0,    <!-- ax (IMU accel reliable) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.5,  0,    <!-- ay (IMU accel reliable) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.01] <!-- az (constrained in 2D) -->
+        </rosparam>
+
+
+        <!-- GPS (odom1) - can have significant outliers -->
+        <param name="odom1_pose_rejection_threshold" value="3.0"/>  <!-- Reject GPS position outliers beyond 3 sigma -->
+
+        <!-- Wheel Odometry (odom0) - generally reliable but can slip -->
+        <param name="odom0_pose_rejection_threshold" value="5.0"/>  <!-- More tolerant for pose -->
+        <param name="odom0_twist_rejection_threshold" value="4.0"/> <!-- Slightly stricter for velocity -->
+
+        <!-- IMU (imu0) - usually reliable but can have spikes -->
+        <param name="imu0_pose_rejection_threshold" value="4.0"/>   <!-- For orientation -->
+        <param name="imu0_angular_velocity_rejection_threshold" value="3.0"/>  <!-- For angular velocity -->
+        <param name="imu0_linear_acceleration_rejection_threshold" value="3.0"/>  <!-- For acceleration -->
     </node>
 
     <!-- https://docs.ros.org/en/jade/api/robot_localization/html/navsat_transform_node.html -->
