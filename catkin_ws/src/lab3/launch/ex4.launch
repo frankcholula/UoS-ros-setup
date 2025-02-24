@@ -1,11 +1,8 @@
 <launch>
-    <node pkg="rviz" type="rviz" name="rviz"/>
-    <param name="use_sim_time" value="true" />
     <include file="$(find turtlebot3_bringup)/launch/includes/description.launch.xml">
         <arg name="model" value="burger" />
     </include>
 
-    <node pkg="rosbag" type="play" name="player" args="--clock /root/catkin_ws/solutions/lab3/lab3_data.bag"/>
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
 
     <node pkg="robot_localization" name="KF" type="ekf_localization_node" clear_params="true">
@@ -41,8 +38,8 @@
         <param name="two_d_mode" value="true"/>
         <param name="dynamic_process_noise_covariance" value="true"/>
         <rosparam param="process_noise_covariance">
-            [0.2,  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- x (GPS moderate trust) -->
-             0,    0.2,  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- y (GPS moderate trust) -->
+            [1.0,  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- x (GPS don't trust) -->
+             0,    1.0,  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- y (GPS don't trust) -->
              0,    0,    0.01, 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- z (constrained in 2D) -->
              0,    0,    0,    0.01, 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- roll (constrained in 2D) -->
              0,    0,    0,    0,    0.01, 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    <!-- pitch (constrained in 2D) -->
@@ -52,17 +49,34 @@
              0,    0,    0,    0,    0,    0,    0,    0,    0.01, 0,    0,    0,    0,    0,    0,    <!-- vz (constrained in 2D) -->
              0,    0,    0,    0,    0,    0,    0,    0,    0,    0.01, 0,    0,    0,    0,    0,    <!-- vroll (constrained in 2D) -->
              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.01, 0,    0,    0,    0,    <!-- vpitch (constrained in 2D) -->
-             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.6,  0,    0,    0,    <!-- vyaw (IMU gyro very reliable) -->
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.6,  0,    0,    0,    <!-- vyaw (IMU gyro reliable) -->
              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.5,  0,    0,    <!-- ax (IMU accel reliable) -->
              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.5,  0,    <!-- ay (IMU accel reliable) -->
              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0.01] <!-- az (constrained in 2D) -->
         </rosparam>
 
+        <rosparam param="initial_estimate_covariance">
+            [1e-9, 0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+             0,    1e-9, 0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+             0,    0,    1e-9, 0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+             0,    0,    0,    1e-9, 0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+             0,    0,    0,    0,    1e-9, 0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+             0,    0,    0,    0,    0,    1e-9, 0,    0,    0,    0,     0,     0,     0,    0,    0,
+             0,    0,    0,    0,    0,    0,    1e-9, 0,    0,    0,     0,     0,     0,    0,    0,
+             0,    0,    0,    0,    0,    0,    0,    1e-9, 0,    0,     0,     0,     0,    0,    0,
+             0,    0,    0,    0,    0,    0,    0,    0,    1e-9, 0,     0,     0,     0,    0,    0,
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    1e-9,  0,     0,     0,    0,    0,
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     1e-9,  0,     0,    0,    0,
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     1e-9,  0,    0,    0,
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     1e-9, 0,    0,
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    1e-9, 0,
+             0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    1e-9]
+        </rosparam>
 
-        <!-- GPS (odom1) - can have significant outliers -->
-        <param name="odom1_pose_rejection_threshold" value="3.0"/>  <!-- Reject GPS position outliers beyond 3 sigma -->
+        <!-- GPS (odom1) - can have significant outliers so comment out-->
+        <!-- <param name="odom1_pose_rejection_threshold" value="3.0"/>  -->
 
-        <!-- Wheel Odometry (odom0) - generally reliable but can slip -->
+        <!-- Wheel Odometry (odom0) - generally reliable but can slip on carpet-->
         <param name="odom0_pose_rejection_threshold" value="5.0"/>  <!-- More tolerant for pose -->
         <param name="odom0_twist_rejection_threshold" value="4.0"/> <!-- Slightly stricter for velocity -->
 
@@ -72,9 +86,10 @@
         <param name="imu0_linear_acceleration_rejection_threshold" value="3.0"/>  <!-- For acceleration -->
     </node>
 
+    <!-- we could just get rid of the GPS node since we're not using it-->
     <!-- https://docs.ros.org/en/jade/api/robot_localization/html/navsat_transform_node.html -->
-    <node pkg="robot_localization" name="gps_transformer" type="navsat_transform_node">
-        <remap from="/odometry/filtered" to="/odom_corrected"/>
-        <remap from="/imu/data" to="/imu_corrected"/>
-    </node>
+    <!-- <node pkg="robot_localization" name="gps_transformer" type="navsat_transform_node"> -->
+        <!-- <remap from="/odometry/filtered" to="/odom_corrected"/> -->
+        <!-- <remap from="/imu/data" to="/imu_corrected"/> -->
+    <!-- </node> -->
 </launch>
