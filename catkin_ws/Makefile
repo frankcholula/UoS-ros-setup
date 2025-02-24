@@ -50,4 +50,3 @@ rosbag:
 .PHONY: clean
 clean:
 	@rosparam delete /
-
