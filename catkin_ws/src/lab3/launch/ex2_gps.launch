@@ -5,7 +5,7 @@
         <arg name="model" value="burger" />
     </include>
 
-    <node pkg="rosbag" type="play" name="player" args="--clock /root/catkin_ws/solutions/lab3/lab3_data.bag"/>
+    <node pkg="rosbag" type="play" name="player" args="--clock /root/catkin_ws/src/lab3/lab3_data.bag"/>
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
 
     <node pkg="robot_localization" name="KF" type="ekf_localization_node">
