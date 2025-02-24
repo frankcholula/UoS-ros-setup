@@ -12,11 +12,12 @@ UoS-ros-setup
 ├── LICENSE
 ├── README.md
 ├── assets
+│   ├── ROS_cheatsheet.pdf
+│   ├── ROS_cheatsheet_melodic.pdf
 │   ├── novnc_gui.png
 │   ├── vscode.png
-│   ├── x11_preferences.png
-│   ├── xeyes.png
-│   └── xquartz_login.png
+│   ├── wslg.png
+│   └── x11_preferences.png
 ├── catkin_ws
 │   ├── Makefile
 │   ├── build
