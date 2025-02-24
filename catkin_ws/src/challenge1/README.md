@@ -21,4 +21,5 @@ The best results were achieved when running the robot on a tile floor while comp
 These results can be found in `results/noGPS`.
 
 
-We've also initialized the process noise covariance matrix with high uncertainty for the GPS measurements. Instead we rely more on odometry and IMU. For more details, refer to the launch file `launch/group1_KF.launch`.
+We've also initialized the process noise covariance matrix with high uncertainty for the GPS measurements. Instead we rely more on odometry and IMU. For more details, refer to the launch file `launch/group1_KF.launch`. And for bragging rights, no one beats Off to Babushkas.
+![ranking](./results/ranking.png).
