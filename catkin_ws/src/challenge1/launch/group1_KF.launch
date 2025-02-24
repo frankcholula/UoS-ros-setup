@@ -16,14 +16,14 @@
         </rosparam>
         <param name="odom0_differential" value="true"/>
 
-        <param name="odom1" value="/odometry/gps"/>
+        <!-- <param name="odom1" value="/odometry/gps"/> -->
         <!-- x, y -->
-        <rosparam param="odom1_config">[true, true, false,
+        <!-- <rosparam param="odom1_config">[true, true, false,
                                         false, false, false,
                                         false, false, false,
                                         false, false, false,
                                         false, false, false]
-        </rosparam>
+        </rosparam> -->
 
         <param name="imu0" value="/imu_corrected"/>
         <param name="imu0_remove_gravitational_acceleration" value="true"/>
@@ -92,4 +92,4 @@
         <!-- <remap from="/odometry/filtered" to="/odom_corrected"/> -->
         <!-- <remap from="/imu/data" to="/imu_corrected"/> -->
     <!-- </node> -->
-</launch>
+</launch>s
