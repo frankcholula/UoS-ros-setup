@@ -5,7 +5,6 @@ This repository supports both `arm64` 🍎 and `x86_64` 🪟 architectures.
 **Read the following information carefully before you proceed!**
 - If you have an **Apple Silicon** Mac, the image is based on `arm64v8/ros:melodic-ros-base-bionic` and contains the [noVNC](https://novnc.com/info.html) setup for GUI applications such as `RViz` and `Gazebo`.
 - If you have a **PC**, the image is from the University of Surrey's container registry, so make sure you have GlobalProtect VPN installed and connected. See [here](uos_vpn_setup.pdf) for more information. A custom Dockerfile based on `osrf/ros:melodic-desktop-full` is a work in progress 🚧.
-- Currently everything is running on integrated graphics. To enable GPU acceleration, you're on your own 🤷‍♂️.
 
 ## Directory Layout
 ```bash
