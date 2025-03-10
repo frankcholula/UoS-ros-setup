@@ -53,7 +53,7 @@ clean:
 
 .PHONY: my_world
 my_world:
-	roslaunch gazebo_ros empty_world.launch world_name:=/user/HS401/tl01159/Workspace/UoS-ros-setup/catkin_ws/src/lab5/worlds/lab5_world
+	roslaunch gazebo_ros empty_world.launch world_name:=/user/HS401/tl01159/Workspace/UoS-ros-setup/catkin_ws/src/lab5/worlds/lab5.world
 
 .PHONY: launch_turtle
 launch_turtle:
