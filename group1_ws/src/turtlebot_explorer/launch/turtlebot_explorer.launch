@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <include file="$(find turtlebot_explorer)/launch/turtlebot.launch"/>
+  <include file="$(find turtlebot_explorer)/launch/gmapping.launch"/>
+  <include file="$(find turtlebot_explorer)/launch/explorer.launch"/>
+  <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch"/>
+
+  <!-- RVIZ -->
+  <node pkg="rviz" type="rviz" name="rviz_explorer" args="-d $(find turtlebot_explorer)/explorer.rviz"/>
+
+</launch>
