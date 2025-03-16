@@ -16,7 +16,7 @@
 
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(find lab5)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf" args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
     <!-- Bring up rvis -->
     <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
@@ -30,7 +30,9 @@
     <node pkg="map_server" type="map_server" name="map_server" args="$(arg map_file)"/>
 
     <!-- AMCL node -->
-    <node pkg="amcl" type="amcl" name="amcl"/>
+    <node pkg="amcl" type="amcl" name="amcl">
+        <rosparam file="$(find lab5)/param/amcl.yaml" command="load" />
+    </node>
 
     <!-- Navigation stack -->
     <include file="$(find turtlebot3_navigation)/launch/move_base.launch">
