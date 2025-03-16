@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y \
     ros-melodic-turtlebot3-msgs \
     ros-melodic-robot-localization \
     gazebo9 \
+    ros-melodic-gazebo-ros-pkgs \
+    ros-melodic-gazebo-ros-control \
     xfce4 \
     xfce4-goodies \
     tigervnc-standalone-server\

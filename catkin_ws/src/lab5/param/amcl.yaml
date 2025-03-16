@@ -1,0 +1,36 @@
+# Initial Pose Estimate
+initial_pose_x: 0.0
+initial_pose_y: 0.0
+initial_pose_a: 0.0
+
+# Particle Filter Parameters
+min_particles: 100
+max_particles: 500
+
+# Motion Model Noise Parameters
+odom_alpha1: 0.2
+odom_alpha2: 0.2
+odom_alpha3: 0.2
+odom_alpha4: 0.2
+
+# Sensor Model Parameters
+laser_max_range: 8.0
+laser_z_hit: 0.5
+laser_z_rand: 0.5
+
+# Resampling Parameters
+update_min_d: 0.2
+update_min_a: 0.1
+recovery_alpha_slow: 0.001
+recovery_alpha_fast: 0.1
+
+# TF Configuration
+base_frame_id: "base_link"
+odom_frame_id: "odom"
+global_frame_id: "map"
+
+# Topic Names
+scan_topic: "/scan"
+odom_topic: "/odom"
+
+transform_tolerance: 0.5
