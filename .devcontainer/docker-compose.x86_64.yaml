@@ -20,6 +20,7 @@ services:
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       - GAZEBO_IP=127.0.0.1
+      - TURTLEBOT3_MODEL=burger
       - LIBGL_ALWAYS_INDIRECT=0
     volumes:
       - ../catkin_ws:/root/catkin_ws

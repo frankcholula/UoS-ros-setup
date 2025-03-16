@@ -25,4 +25,5 @@ services:
     volumes:
       - ../catkin_ws:/root/catkin_ws
       - ../group1_ws:/root/group1_ws
+      # - ../assets/turtlebot:/root/.gazebo/models/turtlebot
     restart: always
