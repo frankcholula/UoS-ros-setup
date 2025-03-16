@@ -30,7 +30,31 @@
     <node pkg="map_server" type="map_server" name="map_server" args="$(arg map_file)"/>
 
     <!-- AMCL node -->
-    <node pkg="amcl" type="amcl" name="amcl"/>
+    <node pkg="amcl" type="amcl" name="amcl">
+        <!-- AMCL Parameters -->
+        <param name="odom_frame_id" value="odom"/>
+        <param name="base_frame_id" value="base_footprint"/>
+        <param name="global_frame_id" value="map"/>
+        
+        <!-- Particle Filter Parameters -->
+        <param name="min_particles" value="500"/>
+        <param name="max_particles" value="5000"/>
+        <param name="initial_particles" value="1000"/>
+        
+        <!-- Laser Scan Model Parameters -->
+        <param name="laser_model_type" value="likelihood_field"/>
+        <param name="laser_max_range" value="10.0"/>
+        <param name="laser_min_range" value="0.1"/>
+        <param name="laser_z_hit" value="0.95"/>
+        <param name="laser_z_rand" value="0.05"/>
+
+        <!-- Resampling Parameters -->
+        <param name="resample_interval" value="2.0"/>
+        <param name="update_min_d" value="0.2"/>
+        <param name="update_min_a" value="0.5"/>
+        
+        <param name="transform_tolerance" value="0.5"/>
+    </node>
 
     <!-- Navigation stack -->
     <include file="$(find turtlebot3_navigation)/launch/move_base.launch">
