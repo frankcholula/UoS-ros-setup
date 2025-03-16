@@ -18,7 +18,7 @@ laser_max_range: 8.0
 laser_z_hit: 0.5
 laser_z_rand: 0.5
 
-# Update and Recovery Parameters
+# Resampling Parameters
 update_min_d: 0.2
 update_min_a: 0.1
 recovery_alpha_slow: 0.001
