@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <include file="$(find turtlebot_explorer)/launch/turtlebot.launch"/>
+  <include file="$(find turtlebot_explorer)/launch/gmapping.launch"/>
+  <include file="$(find turtlebot_explorer)/launch/explorer.launch"/>
+
+  <!-- Load World -->
+  <arg name="world_file" default="$(find turtlebot_explorer)/worlds/explore.world"/>
+  <include file="$(find turtlebot_explorer)/launch/turtlebot_world.launch">
+		<arg name="world_file" value="$(arg world_file)"/>
+  </include>
+
+  <!-- Gazebo model spawner -->
+  <node name="spawn_turtlebot_model" pkg="gazebo_ros" type="spawn_model"
+        args="$(optenv ROBOT_INITIAL_POSE) -unpause -urdf -param robot_description -model mobile_base"/>
+
+  <!-- RVIZ -->
+  <node pkg="rviz" type="rviz" name="rviz_explorer" args="-d $(find turtlebot_explorer)/explorer.rviz"/>
+
+</launch>
