@@ -63,6 +63,7 @@ class RandomExplorer:
 
     # Return explored cells
     def get_valid_cells(self, height, gridmap, width):
+        # -1 is unknown, 0 is free, >0 is occupied
         # Get Number of Explored Cells
         cells_explored = np.count_nonzero(gridmap == 0) # filter out obstacles
         rospy.loginfo("Cells Explored %i", cells_explored)
@@ -73,7 +74,7 @@ class RandomExplorer:
         for y in range(0, height):
             for x in range(0, width):
                 idx = x + y * width
-                if gridmap[idx] > -1:
+                if gridmap[idx] == 0:
                     cells_to_pick[cells][0] = x
                     cells_to_pick[cells][1] = y
                     cells = cells + 1
@@ -103,13 +104,7 @@ class RandomExplorer:
         return goal_msg
 
     def send_goal(self, goal):
-        rospy.loginfo(f"Sending goal {goal.pose.position.x}, {goal.pose.position.y} to Action Server")
-
-        self.goal_sender.send_goal(
-            goal, 
-            self.goal_sender.done_cb,
-            self.goal_sender.active_cb,
-            self.goal_sender.feedback_cb)
+        self.goal_sender.send_goal(goal)
 
         timeout = rospy.Duration(30) # set timeout to 30 seconds
         success = self.goal_sender.client.wait_for_result(timeout)
