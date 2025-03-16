@@ -5,7 +5,7 @@
     ],
     "service": "rosdev",
     
-    "workspaceFolder": "/root/catkin_ws",
+    "workspaceFolder": "/root",
     "remoteUser": "root",
     "customizations": {
         "vscode": {

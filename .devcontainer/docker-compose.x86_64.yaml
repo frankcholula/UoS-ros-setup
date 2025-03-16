@@ -23,6 +23,7 @@ services:
       - LIBGL_ALWAYS_INDIRECT=0
     volumes:
       - ../catkin_ws:/root/catkin_ws
+      - ../group1_ws:/root/group1_ws
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
     # Uncomment the following lines if you have an NVIDIA GPU and want to use it in the container
