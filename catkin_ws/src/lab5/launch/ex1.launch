@@ -25,6 +25,6 @@
   
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find lab5)/rviz-conf/ex1.rviz"/>
 
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_$(anon robot_state)"/>
 
 </launch>
