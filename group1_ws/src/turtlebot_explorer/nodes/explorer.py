@@ -9,7 +9,6 @@ from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import PoseStamped
 from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.srv import GetMap, GetMapResponse
-
 from move_base_client import GoalSender
 
 # Random Explorer Class
@@ -72,6 +71,29 @@ class RandomExplorer:
 
         return goal_msg
 
+    def neighbour_count(self, map, x, y, width=None, height=None):
+        if width is None:
+            width = int((len(map[0])))
+        if height is None:
+            height = int((len(map)))
+        
+        unknown_neighbors = 0
+        walls = 0
+        area_coefficient = 7
+        
+        for dx in range(-area_coefficient, area_coefficient+1):
+            for dy in range(-area_coefficient, area_coefficient+1):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < width and 0 <= ny < height:
+                    idx = nx + ny * width
+                    if map[idx] == -1:  # Unknown
+                        unknown_neighbors += 1
+                    elif map[idx] > 0:  # Wall/obstacle
+                        walls += 1
+        
+        # Penalize cells near walls, reward cells near unexplored space
+        return max(unknown_neighbors - walls*0.3, 0) / float(area_coefficient**2)
+    
     # Return explored cells
     def get_valid_cells(self, height, gridmap, width):
         # -1 is unknown, 0 is free, >0 is occupied
@@ -125,18 +147,18 @@ class RandomExplorer:
         get_robot_success, robot_position = self.get_robot_position()
         
         scores = np.zeros(len(cells_to_pick), dtype =int)
-        for i, cell in enumerate(cells_to_pick):
-            x, y = int(cell[0]), int(cell[1])
-            unknown_neighbors = 0
-            for dx in [-1, 0, 1]:
-                for dy in [-1, 0, 1]:
-                    nx, ny = x + dx, y + dy
-                    if nx < 0 or nx >= width or ny < 0 or ny >= height:
-                        idx = nx + ny * width
-                        if self.latest_map[idx] == -1:
-                            unknown_neighbors += 1
-            scores[i] = unknown_neighbors
 
+        scores = np.array([self.neighbour_count(self.latest_map, int(cell[0]), int(cell[1]), width, height) for cell in cells_to_pick])
+        scores[scores < np.mean(scores)] = 0
+        exploration_weight = 0.1
+        if get_robot_success:
+            # take robot position into account
+            dists = np.array([1.0/(np.linalg.norm((cell*res+map_origin)-robot_position) + 1e-6) for cell in cells_to_pick])
+            max_dist = np.sqrt(width**2 + height**2) * res
+            dists = dists / (max_dist*2)
+            rospy.logwarn("dist mean, max: %f, %f", np.mean(dists), np.max(dists))
+            rospy.logwarn("scores mean, max: %f, %f", np.mean(scores), np.max(scores))
+            scores = (1-exploration_weight)*scores + exploration_weight * dists
 
         if np.any(scores > 0):
             # use softmax instead
@@ -224,7 +246,7 @@ class RandomExplorer:
                                         self.goal_sender.feedback_cb)
         
         # Add timeout (this is the only change from the original)
-        timeout = rospy.Duration(30)
+        timeout = rospy.Duration(60)
         success = self.goal_sender.client.wait_for_result(timeout)
         
         if not success:
