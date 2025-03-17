@@ -185,43 +185,43 @@ class RandomExplorer:
 
 
     def get_valid_cells_rrt_star(self, height, gridmap, width, map_info):
-      """
-      Use RRT* to find a valid exploration goal.
-      :param height: Map height.
-      :param gridmap: 1D array representing the occupancy grid.
-      :param width: Map width.
-      :param map_info: Dictionary containing map metadata.
-      :return: A valid exploration goal as [x, y].
-      """
-      # Define start position (current robot position)
-      success, robot_position = self.get_robot_position()
-      if not success:
-          rospy.logwarn("Failed to get robot position, using default start.")
-          robot_position = [
-              map_info["origin"][0] + width * map_info["resolution"] / 2,
-              map_info["origin"][1] + height * map_info["resolution"] / 2
-          ]
+        """
+        Use RRT* to find a valid exploration goal.
+        :param height: Map height.
+        :param gridmap: 1D array representing the occupancy grid.
+        :param width: Map width.
+        :param map_info: Dictionary containing map metadata.
+        :return: A valid exploration goal as [x, y].
+        """
+        # Define start position (current robot position)
+        success, robot_position = self.get_robot_position()
+        if not success:
+            rospy.logwarn("Failed to get robot position, using default start.")
+            robot_position = [
+                map_info["origin"][0] + width * map_info["resolution"] / 2,
+                map_info["origin"][1] + height * map_info["resolution"] / 2
+            ]
 
-      # Define goal area (shifted farther from the robot's position)
-      goal_radius = max(width, height) * map_info["resolution"] / 3  # Larger radius
-      goal_area = [
-          robot_position[0] + goal_radius * np.cos(np.random.uniform(0, 2 * np.pi)),
-          robot_position[1] + goal_radius * np.sin(np.random.uniform(0, 2 * np.pi)),
-          goal_radius / 2  # Smaller radius for goal precision
-      ]
+        # Define goal area (shifted farther from the robot's position)
+        goal_radius = max(width, height) * map_info["resolution"] / 3  # Larger radius
+        goal_area = [
+            robot_position[0] + goal_radius * np.cos(np.random.uniform(0, 2 * np.pi)),
+            robot_position[1] + goal_radius * np.sin(np.random.uniform(0, 2 * np.pi)),
+            goal_radius / 2  # Smaller radius for goal precision
+        ]
 
-      # Initialize RRT* planner
-      rrt_star = RRTStar(start=robot_position, goal_area=goal_area, obstacle_map=gridmap, map_info=map_info)
+        # Initialize RRT* planner
+        rrt_star = RRTStar(start=robot_position, goal_area=goal_area, obstacle_map=gridmap, map_info=map_info)
 
-      # Run RRT* to find a valid goal
-      goal = rrt_star.find_path()
+        # Run RRT* to find a valid goal
+        goal = rrt_star.find_path()
 
-      if goal is not None:
-          rospy.loginfo("Found valid goal using RRT*: %s", goal)
-          return goal
-      else:
-          rospy.logwarn("Failed to find a valid goal using RRT*.")
-          return None
+        if goal is not None:
+            rospy.loginfo("Found valid goal using RRT*: %s", goal)
+            return goal
+        else:
+            rospy.logwarn("Failed to find a valid goal using RRT*.")
+            return None
     def make_goal_msg(self, goal, frame_id="map"):
         # Get Message
         goal_msg = PoseStamped()
