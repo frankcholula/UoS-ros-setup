@@ -7,3 +7,8 @@
 6. As the robot moves, sensors feed new data to gmapping
 7. gmapping updates the map
 8. Once the goal is reached, the cycle repeats
+
+
+## Optimizations:
+1. The original code contains cells that can also be obstacles. Filter those out.
+2. The robot can get stuck exploring, so we added a timeout.
