@@ -127,8 +127,8 @@ class RandomExplorer:
         scores = np.zeros(len(cells_to_pick), dtype =int)
 
         scores = np.array([heuristic_function(self.latest_map, int(cell[0]), int(cell[1]), width, height) for cell in cells_to_pick])
-        scores[scores < np.mean(scores)] = -1000
-        exploration_weight = 0.25
+        scores[scores < np.mean(scores)] = 0
+        exploration_weight = 0.2
         if get_robot_success:
             # take robot position into account
             dists = np.array([1.0/(np.linalg.norm((cell*res+map_origin)-robot_position) + 1e-6) for cell in cells_to_pick])

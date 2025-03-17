@@ -1,4 +1,5 @@
 import numpy as np
+import rospy
 
 def neighbour_count(map, x, y, width=None, height=None):
     if width is None:
@@ -7,7 +8,8 @@ def neighbour_count(map, x, y, width=None, height=None):
         height = int((len(map)))
 
     count = 0
-    area_coefficient = 8
+    walls = 0
+    area_coefficient = 5
     for dx in [-area_coefficient, 0, area_coefficient]:
         for dy in [-area_coefficient, 0, area_coefficient]:
             nx, ny = x + dx, y + dy
@@ -15,5 +17,7 @@ def neighbour_count(map, x, y, width=None, height=None):
                 idx = nx + ny * width
                 if map[idx] == -1:
                     unknown_neighbors += 1
-    return count / area_coefficient**2
+                elif map[idx] > 0:
+                    walls += 1
+    return max(count - walls*0.3, 0) / area_coefficient**2
     
