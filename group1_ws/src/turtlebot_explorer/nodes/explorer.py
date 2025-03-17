@@ -90,7 +90,7 @@ class RandomExplorer:
                         unknown_neighbors += 1
                     elif map[idx] > 0:
                         walls += 1
-        return max(count - walls*0.3, 0) / area_coefficient**2
+        return max(count - walls*0, 0) / area_coefficient**2
     
     # Return explored cells
     def get_valid_cells(self, height, gridmap, width):
@@ -148,7 +148,7 @@ class RandomExplorer:
 
         scores = np.array([self.neighbour_count(self.latest_map, int(cell[0]), int(cell[1]), width, height) for cell in cells_to_pick])
         scores[scores < np.mean(scores)] = 0
-        exploration_weight = 0.2
+        exploration_weight = 0.1
         if get_robot_success:
             # take robot position into account
             dists = np.array([1.0/(np.linalg.norm((cell*res+map_origin)-robot_position) + 1e-6) for cell in cells_to_pick])
