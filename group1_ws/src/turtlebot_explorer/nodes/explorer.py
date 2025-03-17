@@ -28,7 +28,7 @@ class RandomExplorer:
 
         # remember recent goals
         self.recent_goals = []
-        self.max_recent = 10
+        self.max_recent = 10 #
         self.min_goal_distance = 1 # can tweak this knob
 
     def update_map(self):
@@ -86,35 +86,79 @@ class RandomExplorer:
                     cells = cells + 1
         return cells_to_pick
 
-    # Select Random Valid Cell
     def get_goal(self, cells_to_pick, map_origin, res):
-        max_attempts = 10
+        """
+        Optimization 4: Use heuristics to pick a goal
+        """
+        width = self.latest_map_msg.info.width
+        height = self.latest_map_msg.info.height
 
-        for attempt in range(max_attempts):
-            rand_idx = np.random.randint(0, len(cells_to_pick))
-            goal = cells_to_pick[rand_idx]
-            goal_world = (goal * res) + map_origin
+        scores = np.zeros(len(cells_to_pick), dtype =int)
+        for i, cell in enumerate(cells_to_pick):
+            x, y = int(cell[0]), int(cell[1])
+            unknown_neighbors = 0
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    nx, ny = x + dx, y + dy
+                    if nx < 0 or nx >= width or ny < 0 or ny >= height:
+                        idx = nx + ny * width
+                        if self.latest_map[idx] == -1:
+                            unknown_neighbors += 1
+            scores[i] = unknown_neighbors
 
-            too_close = True
-            for recent_goal in self.recent_goals:
-                distance = np.sqrt((goal_world[0] - recent_goal[0])**2 + 
-                                (goal_world[1] - recent_goal[1])**2)
-                if distance < self.min_goal_distance:
-                    too_close = True
-                    break
-            
-            # If not too close to recent goals, use this goal
-            if not too_close:
-                break
 
-            if attempt == max_attempts - 1:
-                rospy.loginfo("Couldn't find goal away from recent ones, using random goal")
+        # create some sorts of weighted probability distribution based on the score
+        if np.any(scores > 0):
+            # I'm adding one off here  to give all cells some chance
+            scores = scores + 1
+            probs = scores / scores.sum()
+            idx = np.random.choice(len(cells_to_pick), p=probs)
+            rospy.loginfo("Selected cell with %d unknown neighbors", scores[idx]-1)
+        else:
+            idx = np.random.randint(0, len(cells_to_pick))
+            rospy.loginfo("No cells with unknown neighbors, selecting randomly")
 
+
+        goal = cells_to_pick[idx]
+        goal_world = (goal * res) + map_origin
+        
+        # remember recent goals (previous implementation)
         if len(self.recent_goals) >= self.max_recent:
             self.recent_goals.pop(0)
         self.recent_goals.append(goal_world)
         
         return goal_world
+
+
+        """
+        Optimization 3: Pick a random cell a certain distance away from previous cells
+        """
+        # max_attempts = 10
+        # for attempt in range(max_attempts):
+        #     rand_idx = np.random.randint(0, len(cells_to_pick))
+        #     goal = cells_to_pick[rand_idx]
+        #     goal_world = (goal * res) + map_origin
+
+        #     too_close = True
+        #     for recent_goal in self.recent_goals:
+        #         distance = np.sqrt((goal_world[0] - recent_goal[0])**2 + 
+        #                         (goal_world[1] - recent_goal[1])**2)
+        #         if distance < self.min_goal_distance:
+        #             too_close = True
+        #             break
+            
+        #     # If not too close to recent goals, use this goal
+        #     if not too_close:
+        #         break
+
+        #     if attempt == max_attempts - 1:
+        #         rospy.loginfo("Couldn't find goal away from recent ones, using random goal")
+
+        # if len(self.recent_goals) >= self.max_recent:
+        #     self.recent_goals.pop(0)
+        # self.recent_goals.append(goal_world)
+        
+        # return goal_world
 
     def make_goal_msg(self, goal, frame_id="map"):
         # Get Message
