@@ -31,6 +31,11 @@ class RandomExplorer:
         self.max_recent = 10 #
         self.min_goal_distance = 1 # can tweak this knob
 
+
+        # Get Robot Posiion
+        self.tf_buffer = tf2_ros.Buffer()
+        self.listener = tf2_ros.TransformListener(self.tf_buffer)
+
     def update_map(self):
 
         try:
@@ -86,13 +91,38 @@ class RandomExplorer:
                     cells = cells + 1
         return cells_to_pick
 
+
+    def get_robot_position(self, frame_id="map"):
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                frame_id,
+                'base_footprint', # gmapping uses base_footprint as default frame
+                rospy.Time(0),
+                rospy.Duration(1.0)
+            )
+        
+            position = np.array([
+                transform.transform.translation.x,
+                transform.transform.translation.y
+            ])
+
+            rospy.logwarn("Robot position: %.2f, %.2f", position[0], position[1])
+            return True, position
+        
+        except (tf2_ros.LookupException,
+                tf2_ros.ConnectivityException,
+                tf2_ros.ExtrapolationException) as e:
+            rospy.logwarn("Failed to get robot position: %s" % e)
+            return False, None
+        
+    
     def get_goal(self, cells_to_pick, map_origin, res):
         """
         Optimization 4: Use heuristics to pick a goal
         """
         width = self.latest_map_msg.info.width
         height = self.latest_map_msg.info.height
-
+        self.get_robot_position()
         scores = np.zeros(len(cells_to_pick), dtype =int)
         for i, cell in enumerate(cells_to_pick):
             x, y = int(cell[0]), int(cell[1])
@@ -109,7 +139,7 @@ class RandomExplorer:
 
         if np.any(scores > 0):
             # use softmax instead
-            temp = 1
+            temp = 1.0
             exp_scores = np.exp(scores / temp)
             probs = exp_scores / np.sum(exp_scores) 
             # alternatively, can just use scores / scores.sum() and add 1 to all scores
