@@ -7,6 +7,7 @@ import tf2_ros
 import numpy as np
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import PoseStamped
+from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.srv import GetMap, GetMapResponse
 
 from move_base_client import GoalSender
@@ -104,14 +105,28 @@ class RandomExplorer:
         return goal_msg
 
     def send_goal(self, goal):
-        self.goal_sender.send_goal(goal)
+        # bypasses our move_base_client send_goal method and add a timeout
+        goal_msg = MoveBaseGoal()
+        goal_msg.target_pose.header = goal.header
+        goal_msg.target_pose.pose = goal.pose
 
-        timeout = rospy.Duration(30) # set timeout to 30 seconds
+        rospy.loginfo("Sending goal to: %.2f, %.2f", # fuck we're using python2
+                    goal.pose.position.x, 
+                    goal.pose.position.y)
+        
+        self.goal_sender.client.send_goal(goal_msg, 
+                                        self.goal_sender.done_cb, 
+                                        self.goal_sender.active_cb, 
+                                        self.goal_sender.feedback_cb)
+        
+        # Add timeout (this is the only change from the original)
+        timeout = rospy.Duration(30)
         success = self.goal_sender.client.wait_for_result(timeout)
+        
         if not success:
             rospy.logwarn("Goal not achieved in time, switching to a new goal")
             self.goal_sender.client.cancel_goal()
-
+   
     def loop(self):
 
         while not rospy.is_shutdown():
