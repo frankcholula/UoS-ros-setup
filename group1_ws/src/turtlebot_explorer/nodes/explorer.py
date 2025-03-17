@@ -79,7 +79,7 @@ class RandomExplorer:
         
         unknown_neighbors = 0
         walls = 0
-        area_coefficient = 5
+        area_coefficient = 7
         
         for dx in range(-area_coefficient, area_coefficient+1):
             for dy in range(-area_coefficient, area_coefficient+1):
