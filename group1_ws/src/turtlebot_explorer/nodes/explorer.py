@@ -122,7 +122,8 @@ class RandomExplorer:
         """
         width = self.latest_map_msg.info.width
         height = self.latest_map_msg.info.height
-        self.get_robot_position()
+        get_robot_success, robot_position = self.get_robot_position()
+        
         scores = np.zeros(len(cells_to_pick), dtype =int)
         for i, cell in enumerate(cells_to_pick):
             x, y = int(cell[0]), int(cell[1])
