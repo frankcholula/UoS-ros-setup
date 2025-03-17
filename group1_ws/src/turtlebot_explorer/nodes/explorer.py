@@ -11,6 +11,42 @@ from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.srv import GetMap, GetMapResponse
 from move_base_client import GoalSender
 
+class RRTStar:
+    def __init__(self, start, goal_area, obstacle_map, map_info, step_size=1.0, max_iter=200):
+        """
+        RRT* Path Planning Algorithm.
+        :param start: Start position [x, y].
+        :param goal_area: Goal area [x, y, radius].
+        :param obstacle_map: 2D numpy array representing the map (0=free, 100=occupied).
+        :param map_info: Map metadata (width, height, resolution, origin).
+        :param step_size: Step size for tree expansion (increased for faster exploration).
+        :param max_iter: Maximum number of iterations (reduced for faster computation).
+        """
+        self.start = np.array(start)
+        self.goal_area = np.array(goal_area)  # [x, y, radius]
+        self.map = obstacle_map  # 2D numpy array (0=free, 100=occupied)
+        self.map_info = map_info  # Map meta information
+        self.step_size = step_size  # Increased step size
+        self.max_iter = max_iter  # Reduced max iterations
+        self.nodes = [start]  # List of nodes in the tree
+        self.width = map_info["width"]
+        self.height = map_info["height"]
+        self.resolution = map_info["resolution"]
+        self.origin = map_info["origin"]
+
+    def find_path(self):
+        """Run the RRT* algorithm to find a path."""
+        for _ in range(self.max_iter):
+            random_point = self.sample_random_point()
+            nearest = self.nearest_node(random_point)
+            new_point = self.steer(nearest, random_point)
+
+            if self.is_free(new_point):
+                self.nodes.append(new_point)
+                if np.linalg.norm(new_point - self.goal_area[:2]) <= self.goal_area[2]:
+                    return new_point  # Found a point near the goal area
+        return None
+
 # Random Explorer Class
 class RandomExplorer:
 
