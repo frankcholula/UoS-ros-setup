@@ -12,6 +12,70 @@ from nav_msgs.srv import GetMap, GetMapResponse
 
 from move_base_client import GoalSender
 
+class RRTStar:
+  def __init__(self, start, goal_area, obstacle_map, map_info, step_size=0.5, max_iter=500):
+      """
+      RRT* Path Planning Algorithm.
+      :param start: Start position [x, y].
+      :param goal_area: Goal area [x, y, radius].
+      :param obstacle_map: 2D numpy array representing the map (0=free, 100=occupied).
+      :param map_info: Map metadata (width, height, resolution, origin).
+      :param step_size: Step size for tree expansion.
+      :param max_iter: Maximum number of iterations.
+      """
+      self.start = np.array(start)
+      self.goal_area = np.array(goal_area)  # [x, y, radius]
+      self.map = obstacle_map  # 2D numpy array (0=free, 100=occupied)
+      self.map_info = map_info  # Map meta information
+      self.step_size = step_size  # meters
+      self.max_iter = max_iter
+      self.nodes = [start]  # List of nodes in the tree
+      self.width = map_info["width"]
+      self.height = map_info["height"]
+      self.resolution = map_info["resolution"]
+      self.origin = map_info["origin"]
+
+  def is_free(self, point):
+      """Check if a point is free of obstacles."""
+      x, y = point
+      grid_x = int((x - self.origin[0]) / self.resolution)
+      grid_y = int((y - self.origin[1]) / self.resolution)
+      if 0 <= grid_x < self.width and 0 <= grid_y < self.height:
+          return self.map[grid_y * self.width + grid_x] == 0
+      return False
+
+  def sample_random_point(self):
+      """Sample a random point within the map bounds."""
+      x = random.uniform(self.origin[0], self.origin[0] + self.width * self.resolution)
+      y = random.uniform(self.origin[1], self.origin[1] + self.height * self.resolution)
+      return np.array([x, y])
+
+  def nearest_node(self, point):
+      """Find the nearest node to the given point."""
+      return min(self.nodes, key=lambda node: np.linalg.norm(node - point))
+
+  def steer(self, from_point, to_point):
+      """Move from `from_point` towards `to_point` by a fixed step size."""
+      direction = to_point - from_point
+      distance = np.linalg.norm(direction)
+      if distance <= self.step_size:
+          return to_point
+      return from_point + self.step_size * direction / distance
+
+  def find_path(self):
+      """Run the RRT* algorithm to find a path."""
+      for _ in range(self.max_iter):
+          random_point = self.sample_random_point()
+          nearest = self.nearest_node(random_point)
+          new_point = self.steer(nearest, random_point)
+
+          if self.is_free(new_point):
+              self.nodes.append(new_point)
+              if np.linalg.norm(new_point - self.goal_area[:2]) <= self.goal_area[2]:
+                  return new_point  # Found a point near the goal area
+      return None
+
+
 # Random Explorer Class
 class RandomExplorer:
 
@@ -66,7 +130,8 @@ class RandomExplorer:
         stamp = self.latest_map_msg.header.stamp
 
         # Pick Goal and Create Msg
-        cells_to_pick = self.get_valid_cells(height, self.latest_map, width)
+        # cells_to_pick = self.get_valid_cells(height, self.latest_map, width)
+        cells_to_pick = self.get_valid_cells_rrt_star(height, self.latest_map, width, self.latest_map_msg.info)
         goal = self.get_goal(cells_to_pick, map_origin, res)
         goal_msg = self.make_goal_msg(goal, map_frame_id)
 
@@ -90,6 +155,38 @@ class RandomExplorer:
                     cells_to_pick[cells][1] = y
                     cells = cells + 1
         return cells_to_pick
+
+    def get_valid_cells_rrt_star(self, height, gridmap, width, map_info):
+        """
+        Use RRT* to find a valid exploration goal.
+        :param height: Map height.
+        :param gridmap: 1D array representing the occupancy grid.
+        :param width: Map width.
+        :param map_info: Dictionary containing map metadata.
+        :return: A valid exploration goal as [x, y].
+        """
+        # Define start position (current robot position or center of the map)
+        start = [map_info["origin"][0] + width * map_info["resolution"] / 2,
+                map_info["origin"][1] + height * map_info["resolution"] / 2]
+
+        # Define goal area (centered around the map with a radius)
+        goal_area = [map_info["origin"][0] + width * map_info["resolution"] / 2,
+                    map_info["origin"][1] + height * map_info["resolution"] / 2,
+                    min(width, height) * map_info["resolution"] / 4]
+
+        # Initialize RRT* planner
+        rrt_star = RRTStar(start=start, goal_area=goal_area, obstacle_map=gridmap, map_info=map_info)
+
+        # Run RRT* to find a valid goal
+        goal = rrt_star.find_path()
+
+        if goal is not None:
+            rospy.loginfo("Found valid goal using RRT*: %s", goal)
+            return goal
+        else:
+            rospy.logwarn("Failed to find a valid goal using RRT*.")
+            return None
+
 
 
     def get_robot_position(self, frame_id="map"):
