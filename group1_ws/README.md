@@ -10,5 +10,15 @@
 
 
 ## Optimizations:
-1. The original code contains cells that can also be obstacles. Filter those out.
-2. The robot can get stuck exploring, so we added a timeout.
+1. Filtering to only choose free cells for exploration targets
+2. Adding a timeout for goals to prevent the robot from getting stuck (30 seconds to get to the goal)
+3. Remember the last 10 goals and randomly sample a goal (maximum 10 times) that is far from the last 10 goals.
+
+## Still Need to Implement:
+4. prefer edge of known space so the robot prefers goal near the boundary between known and unknown. Can do something like a weighted appraoch.
+5. improve upon 4 and ignore all non-frontier cells completely.
+6. build upon 5 and find the fastest path to a frontier cell.
+7. information gain-based exploration.
+
+## Probably outside the scope of this challenge...
+8. multi-robot exploration
