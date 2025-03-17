@@ -107,11 +107,14 @@ class RandomExplorer:
             scores[i] = unknown_neighbors
 
 
-        # create some sorts of weighted probability distribution based on the score
         if np.any(scores > 0):
-            # I'm adding one off here  to give all cells some chance
-            scores = scores + 1
-            probs = scores / scores.sum()
+            # use softmax instead
+            temp = 1
+            exp_scores = np.exp(scores / temp)
+            probs = exp_scores / np.sum(exp_scores) 
+            # alternatively, can just use scores / scores.sum() and add 1 to all scores
+            # scores = scores + 1
+            # probs = scores / scores.sum()
             idx = np.random.choice(len(cells_to_pick), p=probs)
             rospy.loginfo("Selected cell with %d unknown neighbors", scores[idx]-1)
         else:

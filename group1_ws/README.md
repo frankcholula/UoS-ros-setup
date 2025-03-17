@@ -22,3 +22,6 @@
 
 ## Probably outside the scope of this challenge...
 8. multi-robot exploration
+
+## Other notes:
+- Robot close to the obstacles often takes a while to get to the correct pose due to bumping into the obstacles. This needs to be fixed.
