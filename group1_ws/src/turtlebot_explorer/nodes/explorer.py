@@ -9,7 +9,6 @@ from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import PoseStamped
 from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.srv import GetMap, GetMapResponse
-from heuristics import *
 from move_base_client import GoalSender
 
 # Random Explorer Class
@@ -72,6 +71,27 @@ class RandomExplorer:
 
         return goal_msg
 
+
+    def neighbour_count(self, map, x, y, width=None, height=None):
+        if width is None:
+            width = int((len(map[0])))
+        if height is None:
+            height = int((len(map)))
+
+        count = 0
+        walls = 0
+        area_coefficient = 5
+        for dx in [-area_coefficient, 0, area_coefficient]:
+            for dy in [-area_coefficient, 0, area_coefficient]:
+                nx, ny = x + dx, y + dy
+                if nx < 0 or nx >= width or ny < 0 or ny >= height:
+                    idx = nx + ny * width
+                    if map[idx] == -1:
+                        unknown_neighbors += 1
+                    elif map[idx] > 0:
+                        walls += 1
+        return max(count - walls*0.3, 0) / area_coefficient**2
+    
     # Return explored cells
     def get_valid_cells(self, height, gridmap, width):
         # -1 is unknown, 0 is free, >0 is occupied
@@ -116,7 +136,7 @@ class RandomExplorer:
             return False, None
         
     
-    def get_goal(self, cells_to_pick, map_origin, res, heuristic_function=neighbour_count):
+    def get_goal(self, cells_to_pick, map_origin, res):
         """
         Optimization 4: Use heuristics to pick a goal
         """
@@ -126,7 +146,7 @@ class RandomExplorer:
         
         scores = np.zeros(len(cells_to_pick), dtype =int)
 
-        scores = np.array([heuristic_function(self.latest_map, int(cell[0]), int(cell[1]), width, height) for cell in cells_to_pick])
+        scores = np.array([self.neighbour_count(self.latest_map, int(cell[0]), int(cell[1]), width, height) for cell in cells_to_pick])
         scores[scores < np.mean(scores)] = 0
         exploration_weight = 0.2
         if get_robot_success:
