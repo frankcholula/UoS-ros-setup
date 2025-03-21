@@ -1,0 +1,47 @@
+FROM osrf/ros:melodic-desktop-full
+
+RUN apt-get update && \
+        DEBIAN_FRONTEND='noninteractive' apt-get -y upgrade
+
+# Basic Utilities
+RUN DEBIAN_FRONTEND='noninteractive' apt-get -y update && apt-get -y upgrade && apt-get install -y zsh screen tmux tree sudo ssh synaptic htop vim tig ipython ipython3 less ranger apt-utils software-properties-common apt-transport-https gnupg gnupg-agent ca-certificates curl x11-apps python-pip python3-pip build-essential libc++abi-dev clang aptitude rsync git nano gedit terminator dbus-x11
+
+# Visual studio code - skip install
+#RUN curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - && \
+#        sudo echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list && \
+#        sudo apt-get update && \
+#        sudo apt-get -y install code
+
+# ROS dependencies
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y ros-melodic-control-msgs ros-melodic-controller-manager ros-melodic-effort-controllers ros-melodic-gazebo-dev ros-melodic-gazebo-msgs ros-melodic-gazebo-plugins ros-melodic-gazebo-ros ros-melodic-gazebo-ros-control ros-melodic-imu-complementary-filter ros-melodic-imu-sensor-controller ros-melodic-joint-state-controller ros-melodic-joint-trajectory-controller ros-melodic-joy ros-melodic-moveit-ros-control-interface ros-melodic-moveit-ros-move-group ros-melodic-moveit-ros-planning ros-melodic-moveit-ros-planning-interface ros-melodic-moveit-ros-robot-interaction ros-melodic-moveit-simple-controller-manager ros-melodic-navigation ros-melodic-pointcloud-to-laserscan ros-melodic-position-controllers ros-melodic-robot-controllers ros-melodic-robot-localization ros-melodic-ros-control ros-melodic-ros-controllers ros-melodic-rosbridge-server ros-melodic-rosdoc-lite ros-melodic-rqt-controller-manager ros-melodic-velocity-controllers ros-melodic-yocs-velocity-smoother ros-melodic-ompl ros-melodic-moveit-ros-visualization ros-melodic-moveit-planners-ompl ros-melodic-moveit-commander ros-melodic-warehouse-ros ros-melodic-warehouse-ros-mongo ros-melodic-joint-state-publisher-gui ros-melodic-octomap-rviz-plugins ros-melodic-octomap-ros ros-melodic-octomap-mapping ros-melodic-octomap-server ros-melodic-octomap-msgs unzip
+
+# TURTLEBOT3 Dependencies
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y ros-melodic-teleop-twist-joy ros-melodic-teleop-twist-keyboard ros-melodic-laser-proc ros-melodic-rgbd-launch ros-melodic-depthimage-to-laserscan ros-melodic-rosserial-arduino ros-melodic-rosserial-python ros-melodic-rosserial-server ros-melodic-rosserial-client ros-melodic-rosserial-msgs ros-melodic-amcl ros-melodic-map-server ros-melodic-move-base ros-melodic-urdf ros-melodic-xacro ros-melodic-compressed-image-transport ros-melodic-rqt* ros-melodic-gmapping ros-melodic-interactive-markers ros-melodic-dynamixel-sdk ros-melodic-turtlebot3-msgs ros-melodic-turtlebot3-*
+
+
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y libncurses5-dev uvcdynctrl python3-yaml python-yaml python-catkin-pkg python-opencv python-numpy python-catkin-lint software-properties-common python-catkin-tools
+
+
+#OPENMANIPULATOR-X dependencies
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y ros-melodic-ros-controllers ros-melodic-gazebo* ros-melodic-moveit* ros-melodic-industrial-core ros-melodic-dynamixel-sdk ros-melodic-dynamixel-workbench* ros-melodic-robotis-manipulator
+
+# cleanup
+RUN apt-get autoremove -y; apt-get clean -y
+
+#Fix issues with Gazebo
+#RUN mkdir -p ~/.ignition/fuel && touch ~/.ignition/fuel/config.yaml && echo -e "--- \\n#The list of servers. \\nservers:\\n  -\\n    name: osrf\\n    url: https://fuel.ignitionrobotics.org" > ~/.ignition/fuel/config.yaml
+#Fix the fix for the issues with Gazebo - Checkout all the model files into the docker container so we don't have to access via web api
+RUN cd /usr/share/gazebo-9/models && \
+ rm -R ./* && \
+ wget https://github.com/osrf/gazebo_models/archive/refs/heads/master.zip && \
+ unzip -o master.zip && \
+ rm master.zip && \
+ cd /usr/share/gazebo-9/models/gazebo_models-master && \
+ mv -f ./* ../
+
+#RUN useradd -ms /bin/bash robostudent
+#USER robostudent
+#WORKDIR /home/robostudent
+
+RUN mkdir /home/robostudent
+
