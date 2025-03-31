@@ -118,9 +118,9 @@ class PickAndPlace:
     def inspect_object(self):
         # ---- REPLACE THIS WITH YOUR CODE
         gripper_state = self.moveit_gripper.get_current_joint_values()
-        avg_position = (gripper_state[0] + gripper_state[1]) / 2
+        gripper_position = gripper_state[0]
         threshold = 0.006
-        if avg_position > threshold:
+        if gripper_position > threshold:
             rospy.loginfo("large object")
             return 1
         else:
