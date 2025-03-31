@@ -41,7 +41,7 @@ respawn_block: delete_block spawn_block
 
 .PHONY: record_pos
 record_pos:
-	rostopic echo -n 1 /joint_states/position >> record_pos.txt
+	rostopic echo -n 1 /joint_states >> record_pos.txt
 
 .PHONY: launch
 launch:
