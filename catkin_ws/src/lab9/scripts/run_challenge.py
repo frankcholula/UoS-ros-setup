@@ -117,9 +117,15 @@ class PickAndPlace:
 
     def inspect_object(self):
         # ---- REPLACE THIS WITH YOUR CODE
-        gripper_states = self.moveit_gripper.get_current_joint_values()
-        return random.randint(0, 1)  # Randomly return 0 or 1 for left or right
-        # ---------
+        gripper_state = self.moveit_gripper.get_current_joint_values()
+        avg_position = (gripper_state[0] + gripper_state[1]) / 2
+        threshold = 0.006
+        if avg_position > threshold:
+            rospy.loginfo("large object")
+            return 1
+        else:
+            rospy.loginfo("small object")
+            return 0
 
 
 if __name__ == "__main__":
