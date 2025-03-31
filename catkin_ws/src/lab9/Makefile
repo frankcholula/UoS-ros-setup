@@ -25,9 +25,28 @@ moveit:
 
 .PHONY: spawn_block
 spawn_block:
-	rosrun gazebo_ros spawn_model -urdf -file `rospack find lab9`/models/block.urdf -model block -x 0.2
+	rosrun gazebo_ros spawn_model -urdf -file $(shell rospack find lab9)/models/block.urdf -model block -x 0.2
 
 .PHONY: spawn_trays
 spawn_trays:
-	rosrun gazebo_ros spawn_model -sdf -file `rospack find lab9`/models/tray.sdf -model tray -y 0.3
-	rosrun gazebo_ros spawn_model -sdf -file `rospack find lab9`/models/tray.sdf -model tray2 -y 0.3
+	rosrun gazebo_ros spawn_model -sdf -file $(shell rospack find lab9)/models/tray.sdf -model tray -y 0.3
+	rosrun gazebo_ros spawn_model -sdf -file $(shell rospack find lab9)/models/tray.sdf -model tray2 -y -0.3
+
+.PHONY: delete_block
+delete_block:
+	rosservice call /gazebo/delete_model "model_name: 'block'"
+
+.PHONY: respawn_block
+respawn_block: delete_block spawn_block
+
+.PHONY: record_pos
+record_pos:
+	rostopic echo -n 1 /joint_states/position >> record_pos.txt
+
+.PHONY: launch
+launch:
+	roslaunch lab9 run_challenge.launch
+	
+.PHONY: run_challenge
+run_challenge:
+	rosrun lab9 run_challenge.py
