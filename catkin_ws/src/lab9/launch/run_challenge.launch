@@ -1,0 +1,21 @@
+<launch>
+    <!-- Launch the controller for the Open Manipulator -->
+    <include file="$(find open_manipulator_controller)/launch/open_manipulator_controller.launch">
+        <arg name="use_platform" value="false" />
+    </include>
+
+    <!-- Launch the joint trajectory controller for MoveIt -->
+    <include file="$(find open_manipulator_controllers)/launch/joint_trajectory_controller.launch">
+        <arg name="sim" value="true" />
+    </include>
+
+    <!-- Spawn the block -->
+    <node name="spawn_block" pkg="gazebo_ros" type="spawn_model" args="-urdf -file $(find lab9)/models/block.urdf -model block -x 0.2"/>
+
+    <!-- Spawn the trays -->
+    <node name="spawn_tray_left" pkg="gazebo_ros" type="spawn_model" args="-sdf -file $(find lab9)/models/tray.sdf -model tray -y 0.3"/>
+    <node name="spawn_tray_right" pkg="gazebo_ros" type="spawn_model" args="-sdf -file $(find lab9)/models/tray.sdf -model tray2 -y -0.3"/>
+
+    <!-- Run the challenge script -->
+    <!-- <node name="run_challenge" pkg="lab9" type="run_challenge.py"/> -->
+</launch>
