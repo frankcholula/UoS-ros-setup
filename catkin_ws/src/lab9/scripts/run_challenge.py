@@ -95,14 +95,14 @@ class PickAndPlace:
     def inspect_object(self):
         # ---- REPLACE THIS WITH YOUR CODE
         gripper_state = self.moveit_gripper.get_current_joint_values()
-        gripper_position = gripper_state[0]
+        gripper_position = abs(gripper_state[0])
         threshold = 0.0002
         small_obj = 0.0048
         big_obj = 0.0019
-        if abs(gripper_values- small_obj) < margin:
+        if abs(gripper_position- small_obj) < threshold:
             print("Small object!")
             return 0
-        elif abs(gripper_values - big_obj)< margin:
+        elif abs(gripper_position - big_obj)< threshold:
             print("Big object!")
             return 1
         else:
