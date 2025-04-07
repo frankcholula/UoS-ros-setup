@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+
+  <!-- Move base -->
+  <include file="$(find turtlebot_explorer)/launch/move_base.launch">
+    <arg name="model" value="$(arg model)" />
+    <arg name="move_forward_only" value="false"/>
+  </include>
+
+  <node name="explorer" pkg="turtlebot_explorer" type="explorer.py" output="screen"/>
+</launch>
