@@ -15,7 +15,4 @@
     <!-- Spawn the trays -->
     <node name="spawn_tray_left" pkg="gazebo_ros" type="spawn_model" args="-sdf -file $(find lab9)/models/tray.sdf -model tray -y 0.3"/>
     <node name="spawn_tray_right" pkg="gazebo_ros" type="spawn_model" args="-sdf -file $(find lab9)/models/tray.sdf -model tray2 -y -0.3"/>
-
-    <!-- Run the challenge script -->
-    <!-- <node name="run_challenge" pkg="lab9" type="run_challenge.py"/> -->
 </launch>

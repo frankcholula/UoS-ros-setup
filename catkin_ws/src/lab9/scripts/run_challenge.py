@@ -9,53 +9,30 @@ import random
 import rospkg
 import numpy as np
 
-sim = True
-
+sim = False
 
 # ----------- ADD YOUR POSES TO THESE LISTS ----------------------
 pick_poses = [
-    [
-        2.124673123038434e-05,
-        -0.9961996054736515,
-        0.29539655487202054,
-        0.6955778031750208,
-    ],
-    [
-        -0.0009911954172752147,
-        0.15608225639418016,
-        0.1315341578616458,
-        1.0474036387372383,
-    ],
+    [-1.9715009956122742e-05, -0.9999084127158424, 0.2999024549788709, 0.6999359228991224],
+    [0.00023957433215482382, -0.6306333934958621, 1.0696127583923065, 0.09814748120934524]
 ]
 
+# Poses for placing objects in the left container              
 place_left_poses = [
-    [
-        2.124673123038434e-05,
-        -0.9961996054736515,
-        0.29539655487202054,
-        0.6955778031750208,
-    ],
-    [
-        -0.0009911954172752147,
-        0.15608225639418016,
-        0.1315341578616458,
-        1.0474036387372383,
-    ],
+    [0.00023957433215482382, -0.6306333934958621, 1.0696127583923065, 0.09814748120934524],
+    [-1.574681138961453, 0.09619623984785086, -0.2047853609996757, 1.423144433971653]
 ]
 
+# Poses for placing objects in the right container
 place_right_poses = [
-    [
-        2.124673123038434e-05,
-        -0.9961996054736515,
-        0.29539655487202054,
-        0.6955778031750208,
-    ],
-    [
-        -0.0009911954172752147,
-        0.15608225639418016,
-        0.1315341578616458,
-        1.0474036387372383,
-    ],
+    [0.00023957433215482382, -0.6306333934958621, 1.0696127583923065, 0.09814748120934524],
+    [1.5031213262882686, 0.09628193659124484, -0.2048335912831618, 1.423125468545762]
+]
+
+# Poses for discarding objects
+throw_it_away_poses = [
+    [0.00023957433215482382, -0.6306333934958621, 0.2996127583923065, 0.09814748120934524],
+    [-2.764681138961453, 0.09619623984785086, -0.2047853609996757, 1.423144433971653]
 ]
 # ---------------------------------------------------
 
@@ -118,14 +95,19 @@ class PickAndPlace:
     def inspect_object(self):
         # ---- REPLACE THIS WITH YOUR CODE
         gripper_state = self.moveit_gripper.get_current_joint_values()
-        gripper_position = gripper_state[0]
-        threshold = 0.006
-        if gripper_position > threshold:
-            rospy.loginfo("large object")
+        gripper_value = abs(gripper_state[0])
+        print("Gripper joint value: {}".format(gripper_value))
+        threshold = 0.0002
+        small_obj = 0.0048
+        big_obj = 0.0019
+        if abs(gripper_value- small_obj) < threshold:
+            print("Small object!")
+            return 0
+        elif abs(gripper_value - big_obj)< threshold:
+            print("Big object!")
             return 1
         else:
-            rospy.loginfo("small object")
-            return 0
+            return -1
 
 
 if __name__ == "__main__":
@@ -178,6 +160,7 @@ if __name__ == "__main__":
             controller.execute_move_sequence(place_right_poses, "place right")
         else:
             print("Unknown object type {}".format(object_type))
+            controller.execute_move_sequence(throw_it_away_poses, "throw it away")
         controller.release()
 
         attempts = attempts + 1
